@@ -20,6 +20,7 @@ export interface Message {
     role: MessageRole,
     content: string,
     created_at: string,
+    citations?: Citation[],
 }
 
 export interface Citation {
@@ -29,7 +30,7 @@ export interface Citation {
 
 export interface ChatResponse {
     message: string,
-    citations: [Citation]
+    citations: Citation[],
 }
 
 export interface TokenResponse {

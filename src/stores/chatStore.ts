@@ -1,13 +1,13 @@
-import { create } from "zustand";
-import api from "@/lib/api";
-import { Citation, Conversation, Message } from "@/types";
 import { isAxiosError } from "axios";
+import { create } from "zustand";
+
+import api from "@/lib/api";
+import { Conversation, Message } from "@/types";
 
 interface ChatState {
     conversations: Conversation[];
     activeConversationId: string | null;
     messages: Message[];
-    citations: Citation[];
     isLoading: boolean;
 
     fetchConversations: () => Promise<void>;
@@ -22,14 +22,13 @@ export const useChatStore = create<ChatState>((set) => ({
     conversations: [],
     activeConversationId: null,
     messages: [],
-    citations: [],
     isLoading: false,
 
     fetchConversations: async () => {
         set({ isLoading: true });
         try {
             const response = await api.get("/conversations/");
-            set({ conversations: response.data })
+            set({ conversations: response.data });
         } catch (error: unknown) {
             if (isAxiosError(error)) {
                 console.error("Fetch conversations error:", error);
@@ -46,8 +45,8 @@ export const useChatStore = create<ChatState>((set) => ({
             const response = await api.post("/conversations/");
             set((state) => ({
                 activeConversationId: response.data.id,
-                conversations: [response.data, ...state.conversations]
-            }))
+                conversations: [response.data, ...state.conversations],
+            }));
         } catch (error: unknown) {
             if (isAxiosError(error)) {
                 console.error("Create conversation error:", error);
@@ -63,10 +62,10 @@ export const useChatStore = create<ChatState>((set) => ({
         try {
             await api.delete(`/conversations/${conversationId}/`);
             set((state) => ({
-                conversations: state.conversations.filter(convo => convo.id !== conversationId),
+                conversations: state.conversations.filter((convo) => convo.id !== conversationId),
                 activeConversationId: state.activeConversationId === conversationId ? null : state.activeConversationId,
-                messages: []
-            }))
+                messages: state.activeConversationId === conversationId ? [] : state.messages,
+            }));
         } catch (error: unknown) {
             if (isAxiosError(error)) {
                 console.error("Delete conversation error:", error);
@@ -78,7 +77,7 @@ export const useChatStore = create<ChatState>((set) => ({
         }
     },
     setActiveConversation: (conversationId: string) => {
-        set({ activeConversationId: conversationId, messages: [], citations: [] });
+        set({ activeConversationId: conversationId, messages: [] });
     },
     fetchMessages: async (conversationId: string) => {
         set({ isLoading: true });
@@ -98,26 +97,32 @@ export const useChatStore = create<ChatState>((set) => ({
     sendMessage: async (conversationId: string, message: string) => {
         set((state) => ({
             isLoading: true,
-            messages: [...state.messages, {
-                id: crypto.randomUUID(),
-                conversation_id: conversationId,
-                role: "user",
-                content: message,
-                created_at: new Date().toISOString(),
-            }]
-        }))
+            messages: [
+                ...state.messages,
+                {
+                    id: crypto.randomUUID(),
+                    conversation_id: conversationId,
+                    role: "user",
+                    content: message,
+                    created_at: new Date().toISOString(),
+                },
+            ],
+        }));
         try {
             const response = await api.post(`/conversations/${conversationId}/chat`, { message });
             set((state) => ({
-                messages: [...state.messages, {
-                    id: crypto.randomUUID(),
-                    conversation_id: conversationId,
-                    role: "assistant",
-                    content: response.data.message,
-                    created_at: new Date().toISOString(),
-                }],
-                citations: response.data.citations ?? [],
-            }))
+                messages: [
+                    ...state.messages,
+                    {
+                        id: crypto.randomUUID(),
+                        conversation_id: conversationId,
+                        role: "assistant",
+                        content: response.data.message,
+                        created_at: new Date().toISOString(),
+                        citations: response.data.citations ?? [],
+                    },
+                ],
+            }));
         } catch (error: unknown) {
             if (isAxiosError(error)) {
                 console.error("Send message error:", error);
@@ -128,4 +133,4 @@ export const useChatStore = create<ChatState>((set) => ({
             set({ isLoading: false });
         }
     },
-}))
+}));

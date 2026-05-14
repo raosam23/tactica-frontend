@@ -1,8 +1,9 @@
-import { create } from "zustand";
-import { User } from "@/types";
-import api from "@/lib/api";
-import Cookies from "js-cookie";
 import { isAxiosError } from "axios";
+import Cookies from "js-cookie";
+import { create } from "zustand";
+
+import api from "@/lib/api";
+import { User } from "@/types";
 
 interface AuthState {
     user: User | null;
