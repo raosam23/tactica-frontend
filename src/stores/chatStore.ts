@@ -4,6 +4,8 @@ import { create } from "zustand";
 import api from "@/lib/api";
 import { Conversation, Message } from "@/types";
 
+import { ApiError } from "@/lib/error";
+
 interface ChatState {
     conversations: Conversation[];
     activeConversationId: string | null;
@@ -31,9 +33,9 @@ export const useChatStore = create<ChatState>((set) => ({
             set({ conversations: response.data });
         } catch (error: unknown) {
             if (isAxiosError(error)) {
-                console.error("Fetch conversations error:", error);
+                throw new ApiError("Failed to fetch conversations", error.response?.status, error.response?.data);
             } else {
-                console.error("An unknown error occurred:", error);
+                throw new ApiError("An unknown error occurred");
             }
         } finally {
             set({ isLoading: false });
@@ -49,9 +51,9 @@ export const useChatStore = create<ChatState>((set) => ({
             }));
         } catch (error: unknown) {
             if (isAxiosError(error)) {
-                console.error("Create conversation error:", error);
+                throw new ApiError("Failed to create conversation", error.response?.status, error.response?.data);
             } else {
-                console.error("An unknown error occurred:", error);
+                throw new ApiError("An unknown error occurred");
             }
         } finally {
             set({ isLoading: false });
@@ -68,9 +70,9 @@ export const useChatStore = create<ChatState>((set) => ({
             }));
         } catch (error: unknown) {
             if (isAxiosError(error)) {
-                console.error("Delete conversation error:", error);
+                throw new ApiError("Failed to delete conversation", error.response?.status, error.response?.data);
             } else {
-                console.error("An unknown error occurred:", error);
+                throw new ApiError("An unknown error occurred");
             }
         } finally {
             set({ isLoading: false });
@@ -86,9 +88,9 @@ export const useChatStore = create<ChatState>((set) => ({
             set({ messages: response.data });
         } catch (error: unknown) {
             if (isAxiosError(error)) {
-                console.error("Fetch messages error:", error);
+                throw new ApiError("Failed to fetch messages", error.response?.status, error.response?.data);
             } else {
-                console.error("An unknown error occurred:", error);
+                throw new ApiError("An unknown error occurred");
             }
         } finally {
             set({ isLoading: false });
@@ -125,9 +127,9 @@ export const useChatStore = create<ChatState>((set) => ({
             }));
         } catch (error: unknown) {
             if (isAxiosError(error)) {
-                console.error("Send message error:", error);
+                throw new ApiError("Failed to send message", error.response?.status, error.response?.data);
             } else {
-                console.error("An unknown error occurred:", error);
+                throw new ApiError("An unknown error occurred");
             }
         } finally {
             set({ isLoading: false });

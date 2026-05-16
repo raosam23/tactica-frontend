@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { useAuthStore } from "@/stores/authStore";
+import { ApiError } from "@/lib/error";
+import { useSnackbar } from "notistack";
 
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader } from "../ui/card";
@@ -14,17 +16,23 @@ import { Spinner } from "../ui/Spinner";
 const RegisterForm = () => {
     const router = useRouter();
     const { register, isLoading } = useAuthStore();
+    const { enqueueSnackbar } = useSnackbar();
     const [name, setName] = useState<string>("");
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
 
     const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
         event.preventDefault();
-        await register(name, email, password);
-        if (useAuthStore.getState().isAuthenticated) {
+        try {
+            await register(name, email, password);
+            enqueueSnackbar("Account created successfully!", { variant: "success" });
             router.push("/chat");
-        } else {
-            console.error("Registration failed");
+        } catch (error: unknown) {
+            if (error instanceof ApiError) {
+                enqueueSnackbar(error.message, { variant: "error" });
+            } else {
+                enqueueSnackbar("An unexpected error occurred", { variant: "error" });
+            }
         }
     };
     return (
@@ -34,7 +42,7 @@ const RegisterForm = () => {
                 <p className="text-center text-sm text-muted-foreground">Create an account to get started</p>
             </CardHeader>
             <CardContent className="w-full">
-                <form id="register-form" onSubmit={handleSubmit} className="flex flex-col gap-4 w-full">
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full">
                     <Label htmlFor="name">Name</Label>
                     <Input
                         type="text"
@@ -59,16 +67,14 @@ const RegisterForm = () => {
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="••••••••"
                     />
+                    <Button className="cursor-pointer w-full" type="submit" disabled={isLoading}>
+                        {isLoading ? <Spinner /> : "Register"}
+                    </Button>
+                    <p className="text-center text-sm">
+                        Already have an account? <Link href="/login">Login</Link>
+                    </p>
                 </form>
             </CardContent>
-            <div className="flex flex-col items-center gap-2">
-                <Button className="cursor-pointer" type="submit" form="register-form" disabled={isLoading}>
-                    {isLoading ? <Spinner /> : "Register"}
-                </Button>
-                <p>
-                    Already have an account? <Link href="/login">Login</Link>
-                </p>
-            </div>
         </Card>
     );
 };

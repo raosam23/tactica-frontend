@@ -5,16 +5,18 @@ import { create } from "zustand";
 import api from "@/lib/api";
 import { User } from "@/types";
 
+import { ApiError } from "@/lib/error";
+
 interface AuthState {
     user: User | null;
     isAuthenticated: boolean;
     isLoading: boolean;
 
-    login: (email: string, password: string) => Promise<void>
+    login: (email: string, password: string) => Promise<void>;
     logout: () => void;
-    register: (name: string, email: string, password: string) => Promise<void>
-    setUser: (user: User | null) => void
-    setIsAuthenticated: (isAuthenticated: boolean) => void
+    register: (name: string, email: string, password: string) => Promise<void>;
+    setUser: (user: User | null) => void;
+    setIsAuthenticated: (isAuthenticated: boolean) => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -22,7 +24,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     isAuthenticated: false,
     isLoading: false,
     login: async (email, password) => {
-        set({ isLoading: true })
+        set({ isLoading: true });
         try {
             const response = await api.post("/auth/login", { email, password });
             const { access_token } = response.data;
@@ -30,16 +32,16 @@ export const useAuthStore = create<AuthState>((set) => ({
             const profileResponse = await api.get("/auth/me");
             set({
                 isAuthenticated: true,
-                user: profileResponse.data
+                user: profileResponse.data,
             });
         } catch (error: unknown) {
             if (isAxiosError(error)) {
-                console.error("Login error:", error);
+                throw new ApiError("Failed to login", error.response?.status, error.response?.data);
             } else {
-                console.error("An unknown error occurred:", error);
+                throw new ApiError("An unknown error occurred");
             }
         } finally {
-            set({ isLoading: false })
+            set({ isLoading: false });
         }
     },
     logout: () => {
@@ -47,7 +49,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         set({
             user: null,
             isAuthenticated: false,
-        })
+        });
     },
     register: async (name, email, password) => {
         set({ isLoading: true });
@@ -55,10 +57,13 @@ export const useAuthStore = create<AuthState>((set) => ({
             await api.post("/auth/register", { name, email, password });
             await useAuthStore.getState().login(email, password);
         } catch (error: unknown) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
             if (isAxiosError(error)) {
-                console.error("Register error:", error);
+                throw new ApiError("Failed to register", error.response?.status, error.response?.data);
             } else {
-                console.error("An unknown error occurred:", error);
+                throw new ApiError("An unknown error occurred");
             }
         } finally {
             set({ isLoading: false });
@@ -66,4 +71,4 @@ export const useAuthStore = create<AuthState>((set) => ({
     },
     setUser: (user) => set({ user }),
     setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
-}))
+}));
