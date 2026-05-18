@@ -1,11 +1,9 @@
-import { isAxiosError } from "axios";
 import Cookies from "js-cookie";
 import { create } from "zustand";
 
 import api from "@/lib/api";
-import { User } from "@/types";
-
 import { ApiError } from "@/lib/error";
+import { User } from "@/types";
 
 interface AuthState {
     user: User | null;
@@ -35,11 +33,7 @@ export const useAuthStore = create<AuthState>((set) => ({
                 user: profileResponse.data,
             });
         } catch (error: unknown) {
-            if (isAxiosError(error)) {
-                throw new ApiError("Failed to login", error.response?.status, error.response?.data);
-            } else {
-                throw new ApiError("An unknown error occurred");
-            }
+            throw ApiError.fromError(error);
         } finally {
             set({ isLoading: false });
         }
@@ -57,14 +51,7 @@ export const useAuthStore = create<AuthState>((set) => ({
             await api.post("/auth/register", { name, email, password });
             await useAuthStore.getState().login(email, password);
         } catch (error: unknown) {
-            if (error instanceof ApiError) {
-                throw error;
-            }
-            if (isAxiosError(error)) {
-                throw new ApiError("Failed to register", error.response?.status, error.response?.data);
-            } else {
-                throw new ApiError("An unknown error occurred");
-            }
+            throw ApiError.fromError(error);
         } finally {
             set({ isLoading: false });
         }

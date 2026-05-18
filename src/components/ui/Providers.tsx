@@ -1,6 +1,7 @@
 "use client";
-import React from "react";
 import { SnackbarProvider } from "notistack";
+import React from "react";
+
 import { Toast } from "./Toast";
 
 const Providers = ({ children }: { children: React.ReactNode }) => {

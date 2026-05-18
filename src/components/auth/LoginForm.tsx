@@ -1,8 +1,10 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSnackbar } from "notistack";
 import { useState } from "react";
 
+import { ApiError } from "@/lib/error";
 import { useAuthStore } from "@/stores/authStore";
 
 import { Button } from "../ui/button";
@@ -10,8 +12,6 @@ import { Card, CardContent, CardHeader } from "../ui/card";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Spinner } from "../ui/Spinner";
-import { ApiError } from "@/lib/error";
-import { useSnackbar } from "notistack";
 
 const LoginForm = () => {
     const router = useRouter();

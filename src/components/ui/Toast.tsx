@@ -1,7 +1,7 @@
+import { AlertCircle, AlertTriangle, CheckCircle2, Info } from "lucide-react";
 import { CustomContentProps, useSnackbar } from "notistack";
-import { forwardRef } from "react";
 import React from "react";
-import { CheckCircle2, AlertCircle, Info, AlertTriangle } from "lucide-react";
+import { forwardRef } from "react";
 
 const variantStyles: Record<string, { container: string; icon: React.ElementType; iconClass: string }> = {
     success: {
@@ -31,7 +31,7 @@ const variantStyles: Record<string, { container: string; icon: React.ElementType
     },
 };
 
-export const Toast = forwardRef<HTMLDivElement, CustomContentProps>(({ id, message, variant, ...props }, ref) => {
+export const Toast = forwardRef<HTMLDivElement, CustomContentProps>(({ id, message, variant }, ref) => {
     const { closeSnackbar } = useSnackbar();
     const config = variantStyles[variant ?? "default"] ?? variantStyles.default;
     const Icon = config.icon;

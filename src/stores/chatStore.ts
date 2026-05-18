@@ -2,9 +2,8 @@ import { isAxiosError } from "axios";
 import { create } from "zustand";
 
 import api from "@/lib/api";
-import { Conversation, Message } from "@/types";
-
 import { ApiError } from "@/lib/error";
+import { Conversation, Message } from "@/types";
 
 interface ChatState {
     conversations: Conversation[];
