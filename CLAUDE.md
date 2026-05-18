@@ -2,8 +2,6 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-@AGENTS.md
-
 ## Commands
 
 ```bash
@@ -22,14 +20,21 @@ No test suite is configured yet.
 - **shadcn/ui** (`radix-nova` style) — components live in `src/components/ui/`, sourced with `bunx shadcn add <component>`; uses the unified `radix-ui` package (not individual `@radix-ui/react-*` packages)
 - **Zustand 5** for client state
 - **Axios** for HTTP requests
+- **notistack** for toast notifications — `SnackbarProvider` wraps the app via `src/components/ui/Providers.tsx`; use `useSnackbar()` hook in client components to show toasts
 - **TypeScript** strict mode; `@/*` maps to `src/*`
 
 ## Key conventions
 
-- Dark mode toggled via the `.dark` class on a parent (`@custom-variant dark (&:is(.dark *))`), not `prefers-color-scheme`
+- Dark mode is **always forced** — `<html>` always has the `.dark` class; the custom variant `@custom-variant dark (&:is(.dark *))` is defined but dark mode is not user-togglable
+- Font is **Inter** (`--font-inter` CSS variable), not Geist
 - All design tokens (colors, radius, sidebar, charts) are CSS custom properties defined in `globals.css`; reference them with Tailwind utility classes (`bg-background`, `text-foreground`, etc.)
 - Use `cn()` from `@/lib/utils` for conditional className merging (clsx + tailwind-merge)
 - shadcn components use `data-slot`, `data-variant`, `data-size` attributes for styling hooks — keep these when customizing
+- All store actions throw `ApiError` (from `src/lib/error.ts`) on failure — catch `ApiError` in components to display toast messages, not raw Axios errors
+
+## Middleware note
+
+The route-protection logic lives in `src/proxy.ts` (renamed from `src/middleware.ts`). Next.js only runs a file named `middleware.ts` in `src/` or the project root — if middleware isn't running, this rename is the cause.
 
 ---
 
@@ -101,20 +106,23 @@ src/
 │   │   ├── login/page.tsx           # Login page
 │   │   └── register/page.tsx        # Register page
 │   ├── (dashboard)/
-│   │   ├── layout.tsx               # Dashboard layout — sidebar lives here
+│   │   ├── layout.tsx               # Dashboard layout — sidebar will live here
 │   │   └── chat/
 │   │       ├── page.tsx             # Empty state (no conversation selected)
 │   │       └── [conversationId]/
 │   │           └── page.tsx         # Active conversation
-│   ├── layout.tsx                   # Root layout
+│   ├── layout.tsx                   # Root layout — wraps app in <Providers>
 │   └── page.tsx                     # Root redirect (to /chat or /login)
 │
 ├── components/
-│   ├── ui/                          # Shadcn components (auto-generated)
+│   ├── ui/                          # shadcn components + custom UI
+│   │   ├── Providers.tsx            # SnackbarProvider wrapper (notistack)
+│   │   ├── Toast.tsx                # Custom toast component used by notistack
+│   │   └── Spinner.tsx              # Loading spinner (ldrs LineWobble)
 │   ├── auth/
 │   │   ├── LoginForm.tsx
 │   │   └── RegisterForm.tsx
-│   └── chat/
+│   └── chat/                        # ⚠️ NOT YET BUILT — planned components:
 │       ├── Sidebar.tsx              # Conversation list + new chat + user info
 │       ├── ChatWindow.tsx           # Message area
 │       ├── MessageBubble.tsx        # Individual message rendering
@@ -123,12 +131,13 @@ src/
 │
 ├── lib/
 │   ├── api.ts                       # Axios instance with base URL + auth interceptor
+│   ├── error.ts                     # ApiError class for typed error propagation
 │   └── utils.ts                     # cn() and other helpers
 │
-├── middleware.ts                     # Protect dashboard routes, redirect to /login
+├── proxy.ts                         # Middleware logic (⚠️ must be named middleware.ts to run)
 │
 ├── stores/
-│   ├── authStore.ts                 # Zustand — user, token, login/logout actions
+│   ├── authStore.ts                 # Zustand — user, isAuthenticated, login/logout/register
 │   └── chatStore.ts                 # Zustand — conversations, messages, active conversation
 │
 └── types/
@@ -142,17 +151,18 @@ src/
 ### `authStore`
 
 - `user` — current user object or null
-- `token` — JWT string or null
-- `login(token, user)` — sets both, persists token to localStorage
-- `logout()` — clears state and localStorage
-- `isAuthenticated` — derived boolean
+- `isAuthenticated` — boolean
+- `isLoading` — boolean
+- `login(email, password)` — calls `/auth/login`, stores token in a cookie (`js-cookie`), then fetches `/auth/me`
+- `logout()` — removes cookie, clears state
+- `register(name, email, password)` — calls `/auth/register`, then calls `login()` automatically
 
 ### `chatStore`
 
 - `conversations` — list of all conversations
 - `activeConversationId` — currently open conversation
-- `messages` — messages for the active conversation
-- `isLoading` — true while waiting for chat response
+- `messages` — messages for the active conversation; each `Message` object carries a `citations?: Citation[]` field (not top-level store state)
+- `isLoading` — true while a request is in flight
 
 ---
 
