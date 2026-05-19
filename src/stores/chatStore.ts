@@ -10,6 +10,7 @@ interface ChatState {
     activeConversationId: string | null;
     messages: Message[];
     isLoading: boolean;
+    isConversationsLoading: boolean;
 
     fetchConversations: () => Promise<void>;
     createConversation: () => Promise<void>;
@@ -24,9 +25,10 @@ export const useChatStore = create<ChatState>((set) => ({
     activeConversationId: null,
     messages: [],
     isLoading: false,
+    isConversationsLoading: false,
 
     fetchConversations: async () => {
-        set({ isLoading: true });
+        set({ isConversationsLoading: true });
         try {
             const response = await api.get("/conversations/");
             set({ conversations: response.data });
@@ -37,7 +39,7 @@ export const useChatStore = create<ChatState>((set) => ({
                 throw new ApiError("An unknown error occurred");
             }
         } finally {
-            set({ isLoading: false });
+            set({ isConversationsLoading: false });
         }
     },
     createConversation: async () => {

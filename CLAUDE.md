@@ -29,6 +29,25 @@ No test suite is configured yet.
 - Font is **Inter** (`--font-inter` CSS variable), not Geist
 - All design tokens (colors, radius, sidebar, charts) are CSS custom properties defined in `globals.css`; reference them with Tailwind utility classes (`bg-background`, `text-foreground`, etc.)
 - Use `cn()` from `@/lib/utils` for conditional className merging (clsx + tailwind-merge)
+
+## Color schema (dark mode)
+
+**STRICT RULE:** You must strictly use ONLY these colors for the application whenever styling elements. Do not invent new colors, hex codes, or raw Tailwind colors (like `bg-purple-500` or `bg-gray-900`). Always use the designated CSS variables/Tailwind classes below to maintain the consistent purple-tinted dark aesthetic.
+
+| Purpose | CSS variable | Tailwind class | Value |
+|---|---|---|---|
+| Page background | `--background` | `bg-background` | `oklch(0.16 0.03 280)` — deep dark purple-gray |
+| Sidebar background | `--sidebar` | `bg-sidebar` | `oklch(0.18 0.03 280)` — dark purple-gray (slightly elevated) |
+| Card / Content background | `--card` | `bg-card` | `oklch(0.21 0.03 280)` — lighter purple-gray |
+| Primary button / Highlight | `--primary` | `bg-primary` | `oklch(0.60 0.18 280)` — vibrant medium purple |
+| Sidebar hover / active item | `--sidebar-accent` | `bg-sidebar-accent` | `oklch(0.60 0.18 280 / 15%)` — translucent purple wash |
+| Border / Divider | `--border` | `border-border` | `oklch(1 0 0 / 10%)` — subtle translucent white |
+| Sidebar Border | `--sidebar-border` | `border-sidebar-border`| `oklch(1 0 0 / 10%)` — subtle translucent white |
+| Muted text | `--muted-foreground` | `text-muted-foreground` | `oklch(0.708 0 0)` — muted gray |
+| Foreground text | `--foreground` | `text-foreground` | `oklch(0.93 0 0)` — near white |
+| Primary text | `--primary-foreground` | `text-primary-foreground` | `oklch(0.985 0.01 280)` — crisp white with purple tint |
+
+> **Rule:** Never use raw black (`#000`, `oklch(0 0 0)`, `bg-black`) as a background — always use the design tokens above.
 - shadcn components use `data-slot`, `data-variant`, `data-size` attributes for styling hooks — keep these when customizing
 - All store actions throw `ApiError` (from `src/lib/error.ts`) on failure — catch `ApiError` in components to display toast messages, not raw Axios errors
 
@@ -181,3 +200,8 @@ bug/feat/chore/docs: brief one line summary of the changes
 - point by point list of changes
 - you can add
 ```
+
+# Additional rules
+
+- Do not ask for the codebase, you have access to the entire code, you can scan the code for your reference whenever needed.
+- Do not use `use client` more than what is necessary, use it only when there is a need for interactivity or hooks.

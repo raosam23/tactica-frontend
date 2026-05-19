@@ -13,6 +13,7 @@ interface AuthState {
     login: (email: string, password: string) => Promise<void>;
     logout: () => void;
     register: (name: string, email: string, password: string) => Promise<void>;
+    fetchUser: () => Promise<void>;
     setUser: (user: User | null) => void;
     setIsAuthenticated: (isAuthenticated: boolean) => void;
 }
@@ -44,6 +45,14 @@ export const useAuthStore = create<AuthState>((set) => ({
             user: null,
             isAuthenticated: false,
         });
+    },
+    fetchUser: async () => {
+        try {
+            const response = await api.get("/auth/me");
+            set({ user: response.data, isAuthenticated: true });
+        } catch {
+            set({ user: null, isAuthenticated: false });
+        }
     },
     register: async (name, email, password) => {
         set({ isLoading: true });

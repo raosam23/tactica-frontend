@@ -68,7 +68,7 @@ const RegisterForm = () => {
                         placeholder="••••••••"
                     />
                     <Button className="cursor-pointer w-full" type="submit" disabled={isLoading}>
-                        {isLoading ? <Spinner /> : "Register"}
+                        {isLoading ? <Spinner type="line-wobble" /> : "Register"}
                     </Button>
                     <p className="text-center text-sm">
                         Already have an account? <Link href="/login">Login</Link>

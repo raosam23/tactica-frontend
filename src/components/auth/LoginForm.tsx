@@ -59,7 +59,7 @@ const LoginForm = () => {
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                     />
                     <Button className="cursor-pointer w-full" disabled={isLoading} type="submit">
-                        {isLoading ? <Spinner /> : "Login"}
+                        {isLoading ? <Spinner type="line-wobble" /> : "Login"}
                     </Button>
                     <p className="text-center text-sm">
                         Don&apos;t have an account? <Link href="/register">Register</Link>
