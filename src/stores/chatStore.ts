@@ -11,6 +11,7 @@ interface ChatState {
     messages: Message[];
     isLoading: boolean;
     isConversationsLoading: boolean;
+    isMessagesLoading: boolean;
 
     fetchConversations: () => Promise<void>;
     createConversation: () => Promise<void>;
@@ -18,6 +19,7 @@ interface ChatState {
     setActiveConversation: (conversationId: string) => void;
     fetchMessages: (conversationId: string) => Promise<void>;
     sendMessage: (conversationId: string, message: string) => Promise<void>;
+    refreshConversation: (conversationId: string) => Promise<void>;
 }
 
 export const useChatStore = create<ChatState>((set) => ({
@@ -26,6 +28,7 @@ export const useChatStore = create<ChatState>((set) => ({
     messages: [],
     isLoading: false,
     isConversationsLoading: false,
+    isMessagesLoading: false,
 
     fetchConversations: async () => {
         set({ isConversationsLoading: true });
@@ -45,10 +48,11 @@ export const useChatStore = create<ChatState>((set) => ({
     createConversation: async () => {
         set({ isLoading: true });
         try {
-            const response = await api.post("/conversations/");
+            const response = await api.post("/conversations/", {});
             set((state) => ({
                 activeConversationId: response.data.id,
                 conversations: [response.data, ...state.conversations],
+                messages: []
             }));
         } catch (error: unknown) {
             if (isAxiosError(error)) {
@@ -83,7 +87,7 @@ export const useChatStore = create<ChatState>((set) => ({
         set({ activeConversationId: conversationId, messages: [] });
     },
     fetchMessages: async (conversationId: string) => {
-        set({ isLoading: true });
+        set({ isMessagesLoading: true });
         try {
             const response = await api.get(`/conversations/${conversationId}/messages/`);
             set({ messages: response.data });
@@ -94,7 +98,7 @@ export const useChatStore = create<ChatState>((set) => ({
                 throw new ApiError("An unknown error occurred");
             }
         } finally {
-            set({ isLoading: false });
+            set({ isMessagesLoading: false });
         }
     },
     sendMessage: async (conversationId: string, message: string) => {
@@ -135,5 +139,11 @@ export const useChatStore = create<ChatState>((set) => ({
         } finally {
             set({ isLoading: false });
         }
+    },
+    refreshConversation: async (conversation_id: string) => {
+        const response = await api.get(`/conversations/${conversation_id}`);
+        set((state) => ({
+            conversations: state.conversations.map((convo) => convo.id === conversation_id ? response.data : convo),
+        }));
     },
 }));
