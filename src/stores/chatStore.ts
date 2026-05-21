@@ -12,6 +12,7 @@ interface ChatState {
     isLoading: boolean;
     isConversationsLoading: boolean;
     isMessagesLoading: boolean;
+    refreshingConversationId: string | null;
 
     fetchConversations: () => Promise<void>;
     createConversation: () => Promise<void>;
@@ -29,6 +30,7 @@ export const useChatStore = create<ChatState>((set) => ({
     isLoading: false,
     isConversationsLoading: false,
     isMessagesLoading: false,
+    refreshingConversationId: null,
 
     fetchConversations: async () => {
         set({ isConversationsLoading: true });
@@ -141,9 +143,21 @@ export const useChatStore = create<ChatState>((set) => ({
         }
     },
     refreshConversation: async (conversation_id: string) => {
-        const response = await api.get(`/conversations/${conversation_id}`);
-        set((state) => ({
-            conversations: state.conversations.map((convo) => convo.id === conversation_id ? response.data : convo),
-        }));
+        set({ refreshingConversationId: conversation_id });
+        try {
+            const response = await api.get(`/conversations/${conversation_id}`);
+            set((state) => ({
+                conversations: state.conversations.map((convo) => convo.id === conversation_id ? response.data : convo),
+                refreshingConversationId: null,
+            }));
+        } catch (exception: unknown) {
+            if (isAxiosError(exception)) {
+                throw new ApiError("Failed to refresh conversation", exception.response?.status, exception.response?.data);
+            } else {
+                throw new ApiError("An unknown error occurred");
+            }
+        } finally {
+            set({ refreshingConversationId: null });
+        }
     },
 }));

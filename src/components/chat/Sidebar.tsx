@@ -11,7 +11,7 @@ import { Button } from "../ui/button";
 import { Spinner } from "../ui/Spinner";
 
 const Sidebar = () => {
-    const { conversations, fetchConversations, isConversationsLoading } = useChatStore();
+    const { conversations, fetchConversations, isConversationsLoading, refreshingConversationId } = useChatStore();
     const { user, logout, fetchUser } = useAuthStore();
     const router = useRouter();
 
@@ -48,15 +48,21 @@ const Sidebar = () => {
                     </div>
                 )}
                 {!isConversationsLoading &&
-                    conversations.map((convo) => (
-                        <div
-                            key={convo.id}
-                            className="px-3 py-2 rounded-lg cursor-pointer hover:bg-sidebar-accent truncate min-h-10"
-                            onClick={() => handleOpenConversation(convo.id)}
-                        >
-                            {convo.title || "Untitled Conversation"}
-                        </div>
-                    ))}
+                    conversations.map((convo) =>
+                        convo.id === refreshingConversationId ? (
+                            <div key={convo.id} className="px-3 py-2 rounded-lg truncate min-h-10 text-muted-foreground flex items-center">
+                                <Spinner type="line-wobble" size="20" />
+                            </div>
+                        ) : (
+                            <div
+                                key={convo.id}
+                                className="px-3 py-2 rounded-lg cursor-pointer hover:bg-sidebar-accent truncate min-h-10"
+                                onClick={() => handleOpenConversation(convo.id)}
+                            >
+                                {convo.title || "Untitled Conversation"}
+                            </div>
+                        )
+                    )}
             </main>
 
             <footer className="flex flex-col gap-1 border-t border-border pt-4 shrink-0">

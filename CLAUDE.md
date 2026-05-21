@@ -205,3 +205,4 @@ bug/feat/chore/docs: brief one line summary of the changes
 
 - Do not ask for the codebase, you have access to the entire code, you can scan the code for your reference whenever needed.
 - Do not use `use client` more than what is necessary, use it only when there is a need for interactivity or hooks.
+- Do not change existing commite messages, I will handle the git commit process, you just have to suggest me the commit message if I ask for it. DO NOT ADD OR COMMIT OR PUSH CODE YOURSELF.
