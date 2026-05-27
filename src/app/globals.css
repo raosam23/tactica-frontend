@@ -121,9 +121,11 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   html {
     @apply font-sans;
   }
@@ -146,3 +148,5 @@
 ::-webkit-scrollbar-thumb:hover {
   background: oklch(0.60 0.18 280 / 30%);
 }
+
+@plugin "@tailwindcss/typography"
