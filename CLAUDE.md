@@ -22,6 +22,10 @@ No test suite is configured yet.
 - **Axios** for HTTP requests
 - **notistack** for toast notifications — `SnackbarProvider` wraps the app via `src/components/ui/Providers.tsx`; use `useSnackbar()` hook in client components to show toasts
 - **TypeScript** strict mode; `@/*` maps to `src/*`
+- **lucide-react** for ALL icons — do not use any other icon library (heroicons, react-icons, phosphor, etc.)
+- **ldrs/react** for loading spinners — use the custom `Spinner` component at `src/components/ui/Spinner.tsx` with types `"line-spinner"`, `"line-wobble"`, `"tail-spin"`; do not use other spinner libraries
+- **shadcn UI components only** for all UI elements — `Button`, `Card`, `Input`, `Label`, `Textarea` from `src/components/ui/`; do not install or use other component libraries (MUI, Chakra, Ant Design, etc.)
+- **No form library** — forms use plain controlled `useState` inputs; do not add react-hook-form, formik, or similar
 
 ## Key conventions
 
@@ -48,6 +52,19 @@ No test suite is configured yet.
 | Primary text | `--primary-foreground` | `text-primary-foreground` | `oklch(0.985 0.01 280)` — crisp white with purple tint |
 
 > **Rule:** Never use raw black (`#000`, `oklch(0 0 0)`, `bg-black`) as a background — always use the design tokens above.
+
+## Ghost button pattern
+
+For subtle ghost-style buttons (e.g. citation toggle, secondary actions), use this exact className combination — do not deviate:
+
+```
+variant="ghost" className="text-primary border border-primary/30 hover:bg-sidebar-accent hover:text-primary"
+```
+
+- Text: `text-primary` — the vibrant purple
+- Border: `border-primary/30` — subtle 30% opacity purple border
+- Hover background: `hover:bg-sidebar-accent` — translucent purple wash (same as sidebar hover)
+- Hover text: `hover:text-primary` — keeps text purple on hover
 - shadcn components use `data-slot`, `data-variant`, `data-size` attributes for styling hooks — keep these when customizing
 - All store actions throw `ApiError` (from `src/lib/error.ts`) on failure — catch `ApiError` in components to display toast messages, not raw Axios errors
 

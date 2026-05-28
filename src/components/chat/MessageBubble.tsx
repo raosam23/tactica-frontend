@@ -2,6 +2,7 @@ import React from 'react'
 import ReactMarkdown from 'react-markdown'
 
 import { Message } from '@/types'
+import CitationsList from './CitationsList'
 
 const MessageBubble = (
     { message }: {
@@ -14,10 +15,11 @@ const MessageBubble = (
                 {message.content}
             </div></div>);
     } else if (message.role === "assistant") {
-        return <div className="flex justify-start text-sm mb-6">
+        return <div className="flex flex-col justify-start text-sm mb-6">
             <div className="prose prose-invert max-w-none text-sm">
                 <ReactMarkdown>{message.content}</ReactMarkdown>
             </div>
+            <CitationsList citations={message.citations} />
         </div>
     }
     return null
