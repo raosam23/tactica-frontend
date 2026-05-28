@@ -4,6 +4,7 @@ import { PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
+import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/authStore";
 import { useChatStore } from "@/stores/chatStore";
 
@@ -11,7 +12,7 @@ import { Button } from "../ui/button";
 import { Spinner } from "../ui/Spinner";
 
 const Sidebar = () => {
-    const { conversations, fetchConversations, isConversationsLoading, refreshingConversationId } = useChatStore();
+    const { conversations, fetchConversations, isConversationsLoading, refreshingConversationId, activeConversationId } = useChatStore();
     const { user, logout, fetchUser } = useAuthStore();
     const router = useRouter();
 
@@ -56,7 +57,7 @@ const Sidebar = () => {
                         ) : (
                             <div
                                 key={convo.id}
-                                className="px-3 py-2 rounded-lg cursor-pointer hover:bg-sidebar-accent truncate min-h-10"
+                                className={cn("px-3 py-2 rounded-lg cursor-pointer hover:bg-sidebar-accent truncate min-h-10", convo.id === activeConversationId && "bg-sidebar-accent")}
                                 onClick={() => handleOpenConversation(convo.id)}
                             >
                                 {convo.title || "Untitled Conversation"}

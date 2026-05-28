@@ -1,12 +1,14 @@
 "use client";
-import React, { useState } from 'react'
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '../ui/button';
 import { ArrowRight } from 'lucide-react';
-import { useChatStore } from '@/stores/chatStore';
 import { useRouter } from 'next/navigation';
-import { ApiError } from '@/lib/error';
 import { enqueueSnackbar } from 'notistack';
+import React, { useState } from 'react'
+
+import { Textarea } from '@/components/ui/textarea';
+import { ApiError } from '@/lib/error';
+import { useChatStore } from '@/stores/chatStore';
+
+import { Button } from '../ui/button';
 
 const ChatInput = () => {
     const router = useRouter();

@@ -1,19 +1,21 @@
 "use client";
 import { useParams } from "next/navigation";
-import { useChatStore } from "@/stores/chatStore";
 import React, { useEffect } from "react";
-import { Spinner } from "@/components/ui/Spinner";
+
 import ChatInput from "@/components/chat/ChatInput";
 import MessageBubble from "@/components/chat/MessageBubble";
+import { Spinner } from "@/components/ui/Spinner";
+import { useChatStore } from "@/stores/chatStore";
 
 const ChatPage = () => {
     const params = useParams();
-    const { messages, fetchMessages, isMessagesLoading, isLoading } = useChatStore();
+    const { messages, fetchMessages, isMessagesLoading, isLoading, setActiveConversation, activeConversationId } = useChatStore();
     useEffect(() => {
-        if (params.conversationId && !isLoading) {
+        setActiveConversation(params.conversationId as string);
+        if (!(isLoading && activeConversationId === params.conversationId)) {
             fetchMessages(params.conversationId as string);
         }
-    }, [params.conversationId, fetchMessages])
+    }, [params.conversationId, fetchMessages, setActiveConversation, activeConversationId, isLoading])
     if (isMessagesLoading) {
         return <div className="flex items-center justify-center h-full">
             <Spinner type="line-spinner" />

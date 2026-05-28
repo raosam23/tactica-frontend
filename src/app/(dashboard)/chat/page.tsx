@@ -1,5 +1,6 @@
-import ChatInput from "@/components/chat/ChatInput";
 import React from "react";
+
+import ChatInput from "@/components/chat/ChatInput";
 
 const ConversationPage = () => {
     return <div className="flex flex-col items-center justify-center h-full">

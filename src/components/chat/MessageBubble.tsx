@@ -1,6 +1,7 @@
-import { Message } from '@/types'
 import React from 'react'
 import ReactMarkdown from 'react-markdown'
+
+import { Message } from '@/types'
 
 const MessageBubble = (
     { message }: {
@@ -20,7 +21,6 @@ const MessageBubble = (
         </div>
     }
     return null
-
 }
 
 export default MessageBubble

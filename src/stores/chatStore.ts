@@ -119,19 +119,22 @@ export const useChatStore = create<ChatState>((set) => ({
         }));
         try {
             const response = await api.post(`/conversations/${conversationId}/chat`, { message });
-            set((state) => ({
-                messages: [
-                    ...state.messages,
-                    {
-                        id: crypto.randomUUID(),
-                        conversation_id: conversationId,
-                        role: "assistant",
-                        content: response.data.message,
-                        created_at: new Date().toISOString(),
-                        citations: response.data.citations ?? [],
-                    },
-                ],
-            }));
+            set((state) => {
+                if (state.activeConversationId !== conversationId) return {};
+                return {
+                    messages: [
+                        ...state.messages,
+                        {
+                            id: crypto.randomUUID(),
+                            conversation_id: conversationId,
+                            role: "assistant",
+                            content: response.data.message,
+                            created_at: new Date().toISOString(),
+                            citations: response.data.citations ?? [],
+                        },
+                    ],
+                };
+            });
         } catch (error: unknown) {
             if (isAxiosError(error)) {
                 throw new ApiError("Failed to send message", error.response?.status, error.response?.data);
