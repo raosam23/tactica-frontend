@@ -17,7 +17,7 @@ const MessageBubble = (
     } else if (message.role === "assistant") {
         return <div className="flex flex-col justify-start text-sm mb-6">
             <div className="prose prose-invert max-w-none text-sm">
-                <ReactMarkdown>{message.content}</ReactMarkdown>
+                <ReactMarkdown>{message.content.replace(/\s*TERMINATE\s*/g, "").trim()}</ReactMarkdown>
             </div>
             <CitationsList citations={message.citations} />
         </div>

@@ -42,7 +42,7 @@ const ChatPage = () => {
                 {messages.map((msg) => (
                     <MessageBubble key={msg.id} message={msg} />
                 ))}
-                {loadingConversationIds.includes(params.conversationId as string) && activeConversationId === params.conversationId && (
+                {loadingConversationIds.includes(params.conversationId as string) && activeConversationId === params.conversationId && !(messages[messages.length - 1]?.role === "assistant" && Boolean(messages[messages.length - 1]?.content)) && (
                     <ThinkingIndicator />
                 )}
                 <div ref={bottomRef} />

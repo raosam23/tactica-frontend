@@ -4,6 +4,8 @@ import { create } from "zustand";
 import api from "@/lib/api";
 import { ApiError } from "@/lib/error";
 import { Conversation, Message } from "@/types";
+import { fetchEventSource } from "@microsoft/fetch-event-source";
+import Cookies from "js-cookie"
 
 interface ChatState {
     conversations: Conversation[];
@@ -111,34 +113,49 @@ export const useChatStore = create<ChatState>((set) => ({
                 },
             ],
         }));
+        const assistantMessageId = crypto.randomUUID();
+        set((state) => ({
+            messages: [...state.messages, {
+                id: assistantMessageId,
+                conversation_id: conversationId,
+                role: "assistant",
+                content: "",
+                created_at: new Date().toISOString(),
+                citations: [],
+            }]
+        }))
+        const token = Cookies.get("token");
         try {
-            const response = await api.post(`/conversations/${conversationId}/chat`, { message });
-            set((state) => {
-                if (state.activeConversationId !== conversationId) return {};
-                return {
-                    messages: [
-                        ...state.messages,
-                        {
-                            id: crypto.randomUUID(),
-                            conversation_id: conversationId,
-                            role: "assistant",
-                            content: response.data.message,
-                            created_at: new Date().toISOString(),
-                            citations: response.data.citations ?? [],
-                        },
-                    ],
-                };
+            // const response = await api.post(`/conversations/${conversationId}/chat`, { message });
+            await fetchEventSource(`${process.env.NEXT_PUBLIC_API_URL}/conversations/${conversationId}/chat`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": token ? `Bearer ${token}` : ""
+                },
+                body: JSON.stringify({ message }),
+                onmessage(ev) {
+                    const parsed = JSON.parse(ev.data);
+
+                    if (parsed.type === "token") {
+                        set((state) => ({
+                            messages: state.messages.map((msg) => msg.id === assistantMessageId ? { ...msg, content: msg.content + parsed.content } : msg),
+                        }));
+                    } else if (parsed.type === "citations") {
+                        set((state) => ({
+                            loadingConversationIds: state.loadingConversationIds.filter(id => id !== conversationId),
+                            messages: state.messages.map((msg) => msg.id === assistantMessageId ? { ...msg, citations: parsed.citations } : msg),
+                        }));
+                    } else {
+                        console.warn("Unknown message type")
+                    }
+                },
+                onerror(err) {
+                    throw new ApiError(`Failed to send message: ${err}`);
+                }
             });
         } catch (error: unknown) {
-            if (isAxiosError(error)) {
-                throw new ApiError("Failed to send message", error.response?.status, error.response?.data);
-            } else {
-                throw new ApiError("An unknown error occurred");
-            }
-        } finally {
-            set(state => ({
-                loadingConversationIds: state.loadingConversationIds.filter(id => id !== conversationId)
-            }));
+            throw new ApiError("Failed to send message")
         }
     },
     refreshConversation: async (conversation_id: string) => {
