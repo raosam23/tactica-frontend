@@ -15,20 +15,20 @@ const ChatPage = () => {
         messages,
         fetchMessages,
         isMessagesLoading,
-        isLoading,
+        loadingConversationIds,
         setActiveConversation,
         activeConversationId,
     } = useChatStore();
     useEffect(() => {
         setActiveConversation(params.conversationId as string);
-        if (!(isLoading && activeConversationId === params.conversationId)) {
+        if (!(loadingConversationIds.includes(params.conversationId as string) && activeConversationId === params.conversationId)) {
             fetchMessages(params.conversationId as string);
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [params.conversationId, fetchMessages, setActiveConversation]);
     useEffect(() => {
         bottomRef.current?.scrollIntoView({behavior: "smooth"});
-    }, [messages, isLoading])
+    }, [messages])
     if (isMessagesLoading) {
         return (
             <div className="flex items-center justify-center h-full">
@@ -42,7 +42,7 @@ const ChatPage = () => {
                 {messages.map((msg) => (
                     <MessageBubble key={msg.id} message={msg} />
                 ))}
-                {isLoading && activeConversationId === params.conversationId && (
+                {loadingConversationIds.includes(params.conversationId as string) && activeConversationId === params.conversationId && (
                     <ThinkingIndicator />
                 )}
                 <div ref={bottomRef} />

@@ -9,7 +9,7 @@ interface ChatState {
     conversations: Conversation[];
     activeConversationId: string | null;
     messages: Message[];
-    isLoading: boolean;
+    loadingConversationIds: string[];
     isConversationsLoading: boolean;
     isMessagesLoading: boolean;
     refreshingConversationId: string | null;
@@ -27,7 +27,7 @@ export const useChatStore = create<ChatState>((set) => ({
     conversations: [],
     activeConversationId: null,
     messages: [],
-    isLoading: false,
+    loadingConversationIds: [],
     isConversationsLoading: false,
     isMessagesLoading: false,
     refreshingConversationId: null,
@@ -48,7 +48,6 @@ export const useChatStore = create<ChatState>((set) => ({
         }
     },
     createConversation: async () => {
-        set({ isLoading: true });
         try {
             const response = await api.post("/conversations/", {});
             set((state) => ({
@@ -62,12 +61,9 @@ export const useChatStore = create<ChatState>((set) => ({
             } else {
                 throw new ApiError("An unknown error occurred");
             }
-        } finally {
-            set({ isLoading: false });
         }
     },
     deleteConversation: async (conversationId: string) => {
-        set({ isLoading: true });
         try {
             await api.delete(`/conversations/${conversationId}/`);
             set((state) => ({
@@ -81,8 +77,6 @@ export const useChatStore = create<ChatState>((set) => ({
             } else {
                 throw new ApiError("An unknown error occurred");
             }
-        } finally {
-            set({ isLoading: false });
         }
     },
     setActiveConversation: (conversationId: string) => {
@@ -105,7 +99,7 @@ export const useChatStore = create<ChatState>((set) => ({
     },
     sendMessage: async (conversationId: string, message: string) => {
         set((state) => ({
-            isLoading: true,
+            loadingConversationIds: [...state.loadingConversationIds, conversationId],
             messages: [
                 ...state.messages,
                 {
@@ -142,7 +136,9 @@ export const useChatStore = create<ChatState>((set) => ({
                 throw new ApiError("An unknown error occurred");
             }
         } finally {
-            set({ isLoading: false });
+            set(state => ({
+                loadingConversationIds: state.loadingConversationIds.filter(id => id !== conversationId)
+            }));
         }
     },
     refreshConversation: async (conversation_id: string) => {

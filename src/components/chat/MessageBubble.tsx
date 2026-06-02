@@ -11,7 +11,7 @@ const MessageBubble = (
 ) => {
     if (message.role === "user") {
         return (<div className="flex justify-end w-full">
-            <div className="bg-primary text-primary-foreground px-4 py-2 max-w-[70%] w-fit text-sm rounded-t-2xl rounded-br-2xl mb-6">
+            <div className="bg-primary text-primary-foreground px-4 py-2 max-w-[70%] w-fit text-sm rounded-t-2xl rounded-bl-2xl mb-6">
                 {message.content}
             </div></div>);
     } else if (message.role === "assistant") {
