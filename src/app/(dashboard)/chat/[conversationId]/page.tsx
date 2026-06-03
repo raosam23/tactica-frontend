@@ -20,9 +20,11 @@ const ChatPage = () => {
         activeConversationId,
     } = useChatStore();
     useEffect(() => {
-        setActiveConversation(params.conversationId as string);
-        if (!(loadingConversationIds.includes(params.conversationId as string) && activeConversationId === params.conversationId)) {
+        if((params.conversationId as string) !== useChatStore.getState().activeConversationId) {
+            setActiveConversation(params.conversationId as string);
             fetchMessages(params.conversationId as string);
+        } else if(!loadingConversationIds.includes(params.conversationId as string)) {
+            fetchMessages(params.conversationId as string)
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [params.conversationId, fetchMessages, setActiveConversation]);

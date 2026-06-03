@@ -55,6 +55,7 @@ const ChatInput = () => {
                 onKeyDown={handleOnKeyDown}
             />
             <Button
+                type="button"
                 size="icon"
                 className="absolute bottom-2 right-2 rounded-full cursor-pointer"
                 onClick={handleButtonOnClick}
