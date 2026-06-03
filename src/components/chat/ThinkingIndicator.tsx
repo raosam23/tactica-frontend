@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+
 import { thinkingLists } from "@/lib/constants";
 
 const ThinkingIndicator = () => {

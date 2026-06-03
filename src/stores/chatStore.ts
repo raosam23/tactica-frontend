@@ -1,11 +1,11 @@
+import { fetchEventSource } from "@microsoft/fetch-event-source";
 import { isAxiosError } from "axios";
+import Cookies from "js-cookie"
 import { create } from "zustand";
 
 import api from "@/lib/api";
 import { ApiError } from "@/lib/error";
 import { Conversation, Message } from "@/types";
-import { fetchEventSource } from "@microsoft/fetch-event-source";
-import Cookies from "js-cookie"
 
 interface ChatState {
     conversations: Conversation[];
@@ -154,7 +154,7 @@ export const useChatStore = create<ChatState>((set) => ({
                     throw new ApiError(`Failed to send message: ${err}`);
                 }
             });
-        } catch (error: unknown) {
+        } catch {
             throw new ApiError("Failed to send message")
         }
     },

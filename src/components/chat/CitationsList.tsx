@@ -1,8 +1,10 @@
 "use client";
-import React, { useState } from 'react'
-import { Citation } from '@/types';
-import { Button } from '../ui/button';
 import { BookOpen, ChevronDown, ChevronUp, CornerDownRight } from 'lucide-react';
+import React, { useState } from 'react'
+
+import { Citation } from '@/types';
+
+import { Button } from '../ui/button';
 
 const CitationsList = (
     { citations = [] }: { citations?: Citation[] }

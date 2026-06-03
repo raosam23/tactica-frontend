@@ -2,6 +2,7 @@ import React from 'react'
 import ReactMarkdown from 'react-markdown'
 
 import { Message } from '@/types'
+
 import CitationsList from './CitationsList'
 
 const MessageBubble = (
