@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "screenshots": "node scripts/capture-screenshots.mjs"
   },
   "dependencies": {
     "@microsoft/fetch-event-source": "^2.0.1",
@@ -38,6 +39,7 @@
     "eslint-config-next": "16.2.6",
     "eslint-plugin-simple-import-sort": "^13.0.0",
     "eslint-plugin-unused-imports": "^4.4.1",
+    "playwright-core": "^1.64.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   },
