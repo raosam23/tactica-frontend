@@ -19,8 +19,44 @@
 
 ---
 
+## Screenshots
+
+Real screens from this frontend, at a 1440px desktop width (login is also shown at phone width). The football thread is sample copy from a mocked API, so the images can be regenerated without the backend. See [Refreshing the screenshots](#refreshing-the-screenshots).
+
+<table>
+  <tr>
+    <td width="50%" align="center" valign="top">
+      <img src="docs/screenshots/login.png" alt="Login screen. A centered Tactica card with email and password fields on a dark purple background." />
+      <br />
+      <sub>Login</sub>
+    </td>
+    <td width="50%" align="center" valign="top">
+      <img src="docs/screenshots/register.png" alt="Register screen. Name, email, and password fields on the same dark card." />
+      <br />
+      <sub>Create an account</sub>
+    </td>
+  </tr>
+</table>
+
+**New chat** — empty thread, with saved conversations in the sidebar.
+
+![New chat. Sidebar lists several conversations, including an untitled one, and the main pane invites the user to start chatting.](docs/screenshots/new-chat.png)
+
+**Cited answer** — markdown reply with the sources panel open. The active chat is highlighted.
+
+![A tactics question about pressing a 4-3-3, answered in markdown with three citation sources expanded.](docs/screenshots/cited-answer.png)
+
+**Phone** — the login card at a 390px-wide viewport.
+
+<p align="center">
+  <img src="docs/screenshots/login-mobile.png" alt="Login screen on a phone-width viewport. The card fills the width with a small margin." width="320" />
+</p>
+
+---
+
 ## Table of Contents
 
+- [Screenshots](#screenshots)
 - [What is Tactica?](#what-is-tactica)
 - [Features](#features)
 - [How streaming works](#how-streaming-works)
@@ -28,6 +64,7 @@
 - [Project structure](#project-structure)
 - [Getting started](#getting-started)
 - [Environment variables](#environment-variables)
+- [Refreshing the screenshots](#refreshing-the-screenshots)
 
 ---
 
@@ -199,6 +236,20 @@ bun lint     # run ESLint
 | `NEXT_PUBLIC_API_URL` |   Yes    | Base URL of the Tactica backend API (e.g. `http://localhost:8000/api`) |
 
 > In Next.js, any variable exposed to the browser must be prefixed with `NEXT_PUBLIC_`.
+
+---
+
+## Refreshing the screenshots
+
+[`scripts/capture-screenshots.mjs`](scripts/capture-screenshots.mjs) rebuilds the production app, opens it in headless Chrome, and saves PNGs to `docs/screenshots/`.
+
+Requests to `http://localhost:8000/api` are intercepted in the browser. The mock covers the calls this UI makes: login, register, the current user, the conversation list, messages (markdown plus citation sources), and the SSE chat stream (`token` events, then `citations`). Nothing in the application code is stubbed. No Postgres, OpenAI key, or running backend is required.
+
+Google Chrome needs to be installed, and port 3000 needs to be free.
+
+```bash
+bun run screenshots
+```
 
 ---
 
